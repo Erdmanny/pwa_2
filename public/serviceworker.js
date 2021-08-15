@@ -25,7 +25,7 @@ const STATIC_ASSETS = [
     "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/fonts/bootstrap-icons.woff2?856008caa5eb66df68595e734e59580d",
     "/people",
     "/people/addPerson",
-    "/people/getSinglePerson",
+    "/people/editPerson",
     "/app.js"
 ];
 
@@ -60,22 +60,18 @@ self.addEventListener("activate", (event) => {
 
 
 self.addEventListener("fetch", (event) => {
-    // console.log(event.request.url);
     if (DYNAMIC_ASSETS.indexOf(event.request.url) !== -1) {
-        // console.log("URL: " + event.request.url);
         event.respondWith(
             caches.open(DYNAMIC_CACHE).then(function (cache) {
                 return fetch(event.request).then(function (response) {
-                    cache.put(event.request, response.clone())
-                        .catch(error => {
-                        });
+                    cache.put(event.request, response.clone());
                     return response;
                 })
             })
         )
-    } else if (event.request.url.includes("getSinglePerson?")) {
+    } else if (event.request.url.includes("editPerson?")) {
         event.respondWith(
-            caches.match("/people/getSinglePerson").then(cacheRes => {
+            caches.match("/people/editPerson").then(cacheRes => {
                 return cacheRes || fetch(event.request)
             })
         )

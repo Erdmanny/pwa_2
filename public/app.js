@@ -74,21 +74,20 @@ if (navigator.onLine) {
                 window.location.href = "http://localhost/";
             } else {
                 initServiceWorker();
+                people = fetch("http://localhost/people/getPeople")
+                    .then(response => response.json())
+                    .then(data => {
+                        writeToView(data);
+                    })
+                    .catch(err => {
+                        console.log("Security cookies not found");
+                    })
             }
         })
         .catch(err => console.log(err));
 }
 
-if (navigator.onLine) {
-    people = fetch("http://localhost/people/getPeople")
-        .then(response => response.json())
-        .then(data => {
-            writeToView(data);
-        })
-        .catch(err => {
-            console.log("Security cookies not found");
-        })
-}
+
 
 // fetch cached data
 caches.open("dynamic-v1").then(function (cache) {
@@ -221,6 +220,7 @@ function push_unsubscribe() {
             if (!subscription) {
                 return;
             }
+            subscription.unsubscribe();
             return push_sendSubscriptionToServer(subscription, 'DELETE');
         })
         .catch(e => {
@@ -250,5 +250,3 @@ function push_sendSubscriptionToServer(subscription, method) {
 }
 
 
-
-// https://developer.mozilla.org/en-US/docs/Web/API/PushManager/getSubscription

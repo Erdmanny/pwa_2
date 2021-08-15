@@ -62,9 +62,6 @@ class People extends BaseController
 
     public function index()
     {
-//        if (!isset($_COOKIE["userID"])) {
-//            return $this->response->redirect(site_url("/"));
-//        }
         echo view('header');
         echo view('people');
         echo view('footer');
@@ -120,11 +117,6 @@ class People extends BaseController
             setcookie("success", "", -1, "/");
         }
 
-
-
-
-
-
         $people = $this->_peopleModel->getPeople();
 
         for ($i = 0; $i < sizeof($people); $i++) {
@@ -151,9 +143,6 @@ class People extends BaseController
 
     public function addPerson()
     {
-//        if (!isset($_COOKIE["userID"])) {
-//            return $this->response->redirect(site_url("/"));
-//        }
         echo view('header');
         echo view("addPerson");
         echo view('footer');
@@ -281,11 +270,8 @@ class People extends BaseController
         }
     }
 
-    function getSinglePerson()
+    function editPerson()
     {
-//        if (!isset($_COOKIE["userID"])) {
-//            return $this->response->redirect(site_url("/"));
-//        }
         echo view('header');
         echo view("editPerson");
         echo view('footer');

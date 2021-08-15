@@ -42,13 +42,6 @@
     }
 
 
-    if (!navigator.onLine){
-        if (document.getElementById("delete-button") !== null) {
-            document.getElementById("delete-button").disabled = true;
-        }
-    }
-
-
     for(let i = 0; i <ca.length; i++) {
         let c = ca[i];
         while (c.charAt(0) === ' ') {
