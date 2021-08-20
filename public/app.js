@@ -88,8 +88,6 @@ if (navigator.onLine) {
 }
 
 
-
-// fetch cached data
 caches.open("dynamic-v1").then(function (cache) {
     cache.match("http://localhost/people/getPeople")
         .then(response => {
@@ -127,7 +125,6 @@ if (pushButton !== null) {
         .then(serviceWorkerRegistration =>
             serviceWorkerRegistration.pushManager.getSubscription())
         .then(subscription => {
-            // console.log("Subscription: " + JSON.stringify(subscription));
             if (subscription === null) {
                 pushButton.textContent = 'Allow Push';
             } else {

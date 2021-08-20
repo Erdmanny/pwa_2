@@ -3,12 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="shortcut icon" type="image/x-icon" href="logo.ico">
-    <link rel="manifest" href="manifest.webmanifest">
-    <title>PWA 1</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/logo.ico">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <title>PWA 2</title>
+    <meta name="theme-color" content="#FFE1C4">
 
-    <link rel="apple-touch-icon" href="icon/icon96.png">
-    <meta name="apple-mobile-web-app-status-bar" content="#aa7700">
+    <link rel="apple-touch-icon" href="/icon/icon96.png">
+<!--    <meta name="apple-mobile-web-app-status-bar" content="#aa7700">-->
 
 
     <!--Bootstrap CSS-->
@@ -20,10 +21,6 @@
 </head>
 
 <body class="bg-dark">
-
-<?php
-$session = \Config\Services::session();
-?>
 
 <nav class="navbar navbar-light bg-light sticky-top">
     <a class="navbar-brand" href="/">PWA 1</a>

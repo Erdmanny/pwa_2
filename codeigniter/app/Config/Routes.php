@@ -32,19 +32,16 @@ $routes->setAutoRoute(true);
 
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
+$routes->get('fallback', 'Fallback::index');
 $routes->get('/', 'User::index');
 $routes->get('registration', 'User::showRegistration');
-$routes->get('fallback', 'Fallback::index');
 $routes->get('people', 'People::index');
 $routes->get('getPeople', 'People::getPeople');
 $routes->get('addPerson', 'People::addPerson');
 $routes->get('editPerson', 'People::editPerson');
 $routes->get('logout', 'User::logout');
-$routes->match(['post'], 'register', 'User::register');
-$routes->match(['post'], 'login', 'User::login');
-$routes->match(['post'], 'addPersonValidation', 'People::addPerson_Validation');
-$routes->match(['post'], 'editPersonValidation', 'People::editPerson_Validation');
-$routes->match(['post'], 'deletePerson', 'People::deletePerson');
+$routes->post('register', 'User::register');
+$routes->post('login', 'User::login');
 
 /*
  * --------------------------------------------------------------------

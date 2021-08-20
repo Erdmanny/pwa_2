@@ -15,7 +15,7 @@ class People extends BaseController
 {
     use ResponseTrait;
 
-    private $_userModel, $_peopleModel, $_session, $_pushNotificationsModel, $_validation;
+    private $_userModel, $_peopleModel, $_pushNotificationsModel, $_validation;
 
 
     public function __construct()
@@ -23,7 +23,6 @@ class People extends BaseController
         $this->_peopleModel = new PeopleModel();
         $this->_userModel = new UserModel();
         $this->_pushNotificationsModel = new PushNotificationsModel();
-        $this->_session = \Config\Services::session();
         $this->_validation = \Config\Services::validation();
     }
 
@@ -52,7 +51,7 @@ class People extends BaseController
      */
     public function checkCookie(): Response
     {
-        if (!isset($_COOKIE["userID"]) || !isset($_COOKIE["userSecret"])) {
+        if (!isset($_COOKIE["userID"]) || !isset($_COOKIE["userSecret"]) || !$this->isValidRequest($_COOKIE["userID"], $_COOKIE["userSecret"])) {
             return $this->respond(true)->setContentType("application/json");
         } else {
             return $this->respond(false)->setContentType("application/json");
@@ -62,9 +61,10 @@ class People extends BaseController
 
     public function index()
     {
-        echo view('header');
-        echo view('people');
-        echo view('footer');
+        if (!isset($_COOKIE["userID"]) || !isset($_COOKIE["userSecret"]) || !$this->isValidRequest($_COOKIE["userID"], $_COOKIE["userSecret"])) {
+            return redirect()->to('/');
+        }
+        return view('people');
     }
 
     public function getPeople()
@@ -84,9 +84,9 @@ class People extends BaseController
             unset($_COOKIE["error-edit-street"]);
             setcookie("error-edit-street", "", -1, "/");
         }
-        if (isset($_COOKIE["error-edit-postcode"])){
-            unset($_COOKIE["error-edit-postcode"]);
-            setcookie("error-edit-postcode", "", -1, "/");
+        if (isset($_COOKIE["error-edit-zip"])){
+            unset($_COOKIE["error-edit-zip"]);
+            setcookie("error-edit-zip", "", -1, "/");
         }
         if (isset($_COOKIE["error-edit-city"])){
             unset($_COOKIE["error-edit-city"]);
@@ -104,9 +104,9 @@ class People extends BaseController
             unset($_COOKIE["error-new-street"]);
             setcookie("error-new-street", "", -1, "/");
         }
-        if (isset($_COOKIE["error-new-postcode"])){
-            unset($_COOKIE["error-new-postcode"]);
-            setcookie("error-new-postcode", "", -1, "/");
+        if (isset($_COOKIE["error-new-zip"])){
+            unset($_COOKIE["error-new-zip"]);
+            setcookie("error-new-zip", "", -1, "/");
         }
         if (isset($_COOKIE["error-new-city"])){
             unset($_COOKIE["error-new-city"]);
@@ -123,19 +123,18 @@ class People extends BaseController
             $id = $people[$i]["id"];
 
             $people[$i]["address"] = $people[$i]["zip"] . " " . $people[$i]["city"];
-            $people[$i]["fullname"] = $people[$i]["prename"] . " " . $people[$i]["name"];
+            $people[$i]["fullname"] = $people[$i]["prename"] . " " . $people[$i]["surname"];
 
 
             $people[$i]["buttons"] =
-                "<a type='button' href='http://localhost/people/getSinglePerson?id={$id}' class='btn btn-warning btn-sm mr-2'>
+                "<a href='http://localhost/people/editPerson?id={$id}' class='btn btn-warning btn-sm mr-2'>
                     <i class='bi bi-pencil-fill'></i>
                 </a>
-                <button type='button' onclick='deletePerson($id)' id='delete-button' class='btn btn-danger btn-sm'>
+                <button onclick='deletePerson($id)' id='delete-button' class='btn btn-danger btn-sm'>
                     <i class='bi bi-trash-fill'></i>
                 </button>";
         }
 
-        $this->_session->destroy();
         return $this->respond($people)
             ->setContentType('application/json');
     }
@@ -143,9 +142,10 @@ class People extends BaseController
 
     public function addPerson()
     {
-        echo view('header');
-        echo view("addPerson");
-        echo view('footer');
+        if (!isset($_COOKIE["userID"]) || !isset($_COOKIE["userSecret"]) || !$this->isValidRequest($_COOKIE["userID"], $_COOKIE["userSecret"])) {
+            return redirect()->to('/');
+        }
+        return view("addPerson");
     }
 
     public function addPerson_Validation()
@@ -167,9 +167,9 @@ class People extends BaseController
             unset($_COOKIE["error-new-street"]);
             setcookie("error-new-street", "", -1, "/");
         }
-        if (isset($_COOKIE["error-new-postcode"])){
-            unset($_COOKIE["error-new-postcode"]);
-            setcookie("error-new-postcode", "", -1, "/");
+        if (isset($_COOKIE["error-new-zip"])){
+            unset($_COOKIE["error-new-zip"]);
+            setcookie("error-new-zip", "", -1, "/");
         }
         if (isset($_COOKIE["error-new-city"])){
             unset($_COOKIE["error-new-city"]);
@@ -180,7 +180,7 @@ class People extends BaseController
             'new-prename' => 'required',
             'new-surname' => 'required',
             'new-street' => 'required',
-            'new-postcode' => 'required|min_length[5]|max_length[5]|numeric',
+            'new-zip' => 'required|min_length[5]|max_length[5]|numeric',
             'new-city' => 'required'
         ];
         $error_message = [
@@ -193,11 +193,11 @@ class People extends BaseController
             'new-street' => [
                 'required' => 'A street is required'
             ],
-            'new-postcode' => [
-                'required' => 'A postcode is required',
-                'min_length' => 'Postcode must be of length 5',
-                'max_length' => 'Postcode must be of length 5',
-                'numeric' => 'Postcode can only consist of numbers'
+            'new-zip' => [
+                'required' => 'A zip is required',
+                'min_length' => 'zip must be of length 5',
+                'max_length' => 'zip must be of length 5',
+                'numeric' => 'zip can only consist of numbers'
             ],
             'new-city' => [
                 'required' => 'A city is required'
@@ -221,8 +221,8 @@ class People extends BaseController
             if (isset($errors["new-street"])) {
                 setcookie("error-new-street", $errors["new-street"], time() + (86400 * 30), "/");
             }
-            if (isset($errors["new-postcode"])) {
-                setcookie("error-new-postcode", $errors["new-postcode"], time() + (86400 * 30), "/");
+            if (isset($errors["new-zip"])) {
+                setcookie("error-new-zip", $errors["new-zip"], time() + (86400 * 30), "/");
             }
             if (isset($errors["new-city"])) {
                 setcookie("error-new-city", $errors["new-city"], time() + (86400 * 30), "/");
@@ -233,7 +233,7 @@ class People extends BaseController
                 $this->request->getVar('new-prename'),
                 $this->request->getVar('new-surname'),
                 $this->request->getVar('new-street'),
-                $this->request->getVar('new-postcode'),
+                $this->request->getVar('new-zip'),
                 $this->request->getVar('new-city'),
                 $_COOKIE["token"]
             );
@@ -272,9 +272,10 @@ class People extends BaseController
 
     function editPerson()
     {
-        echo view('header');
-        echo view("editPerson");
-        echo view('footer');
+        if (!isset($_COOKIE["userID"]) || !isset($_COOKIE["userSecret"]) || !$this->isValidRequest($_COOKIE["userID"], $_COOKIE["userSecret"])) {
+            return redirect()->to('/');
+        }
+        return view("editPerson");
     }
 
     function editPerson_Validation()
@@ -297,9 +298,9 @@ class People extends BaseController
             unset($_COOKIE["error-edit-street"]);
             setcookie("error-edit-street", "", -1, "/");
         }
-        if (isset($_COOKIE["error-edit-postcode"])){
-            unset($_COOKIE["error-edit-postcode"]);
-            setcookie("error-edit-postcode", "", -1, "/");
+        if (isset($_COOKIE["error-edit-zip"])){
+            unset($_COOKIE["error-edit-zip"]);
+            setcookie("error-edit-zip", "", -1, "/");
         }
         if (isset($_COOKIE["error-edit-city"])){
             unset($_COOKIE["error-edit-city"]);
@@ -311,7 +312,7 @@ class People extends BaseController
             'edit-prename' => 'required',
             'edit-surname' => 'required',
             'edit-street' => 'required',
-            'edit-postcode' => 'required|min_length[5]|max_length[5]|numeric',
+            'edit-zip' => 'required|min_length[5]|max_length[5]|numeric',
             'edit-city' => 'required'
         ];
         $error_message = [
@@ -324,11 +325,11 @@ class People extends BaseController
             'edit-street' => [
                 'required' => 'A street is required'
             ],
-            'edit-postcode' => [
-                'required' => 'A postcode is required',
-                'min_length' => 'Postcode must be of length 5',
-                'max_length' => 'Postcode must be of length 5',
-                'numeric' => 'Postcode can only consist of numbers'
+            'edit-zip' => [
+                'required' => 'A zip is required',
+                'min_length' => 'zip must be of length 5',
+                'max_length' => 'zip must be of length 5',
+                'numeric' => 'zip can only consist of numbers'
             ],
             'edit-city' => [
                 'required' => 'A city is required'
@@ -354,8 +355,8 @@ class People extends BaseController
             if (isset($errors["edit-street"])) {
                 setcookie("error-edit-street", $errors["edit-street"], time() + (86400 * 30), "/");
             }
-            if (isset($errors["edit-postcode"])) {
-                setcookie("error-edit-postcode", $errors["edit-postcode"], time() + (86400 * 30), "/");
+            if (isset($errors["edit-zip"])) {
+                setcookie("error-edit-zip", $errors["edit-zip"], time() + (86400 * 30), "/");
             }
             if (isset($errors["edit-city"])) {
                 setcookie("error-edit-city", $errors["edit-city"], time() + (86400 * 30), "/");
@@ -367,7 +368,7 @@ class People extends BaseController
                 $this->request->getVar('edit-prename'),
                 $this->request->getVar('edit-surname'),
                 $this->request->getVar('edit-street'),
-                $this->request->getVar('edit-postcode'),
+                $this->request->getVar('edit-zip'),
                 $this->request->getVar('edit-city'),
                 $_COOKIE["token"]
             );
@@ -429,7 +430,7 @@ class People extends BaseController
 
                 $message = "deleted";
 
-                $this->sendMessage($keys_auth, $row->endpoint, $message, $person->prename, $person->name);
+                $this->sendMessage($keys_auth, $row->endpoint, $message, $person->prename, $person->surname);
             }
 
 
