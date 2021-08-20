@@ -13,7 +13,7 @@ class User extends BaseController
     }
 
 
-    public function index()
+    public function index(): string
     {
         if (isset($_COOKIE["error-edit-prename"])){
             unset($_COOKIE["error-edit-prename"]);
