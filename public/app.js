@@ -55,20 +55,7 @@ function initTable() {
 
 initTable();
 let people = null;
-
-
-caches.open("dynamic-v1").then(function (cache) {
-    cache.match("http://localhost/people/getPeople")
-        .then(response => {
-            if (!response) throw Error("No Data");
-            return response.json();
-        })
-        .then(data => {
-            writeToView(data);
-        })
-        .catch(() => people)
-});
-
+let networkDataReceived = false;
 
 if (navigator.onLine) {
     initServiceWorker();
@@ -80,9 +67,28 @@ if (navigator.onLine) {
             return response.json()
         })
         .then(data => {
+            networkDataReceived = true;
             writeToView(data);
         })
 }
+
+
+caches.open("dynamic-v1").then(function (cache) {
+    cache.match("http://localhost/people/getPeople")
+        .then(response => {
+            if (!response) throw Error("No Data");
+            return response.json();
+        })
+        .then(data => {
+            if (!networkDataReceived) {
+                writeToView(data);
+            }
+        })
+        .catch(() => {
+            return people;
+        })
+        .catch(err => console.log(err));
+});
 
 
 function writeToView(people) {
