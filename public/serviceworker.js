@@ -4,7 +4,6 @@ const OFFLINE_URL = "/fallback";
 
 const DYNAMIC_ASSETS = [
     "http://localhost/people/getPeople",
-    "http://localhost/people/checkCookie"
 ];
 
 

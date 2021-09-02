@@ -5,7 +5,6 @@ namespace App\Controllers;
 use App\Models\PeopleModel;
 use App\Models\PushNotificationsModel;
 use App\Models\UserModel;
-use CodeIgniter\HTTP\Response;
 use Exception;
 use Minishlink\WebPush\Subscription;
 use Minishlink\WebPush\WebPush;
@@ -46,75 +45,57 @@ class People extends BaseController
         return hash_equals($secretFromCookie, hash('sha256', $user["secret"]));
     }
 
-
-    /**
-     * @return Response
-     */
-    public function checkCookie(): Response
+    public function index(): string
     {
-        if (!isset($_COOKIE["userID"]) || !isset($_COOKIE["userSecret"]) || !$this->isValidRequest($_COOKIE["userID"], $_COOKIE["userSecret"])) {
-            return $this->respond(true)->setContentType("application/json");
-        } else {
-            return $this->respond(false)->setContentType("application/json");
-        }
-    }
-
-
-    public function index()
-    {
-        if (!isset($_COOKIE["userID"]) || !isset($_COOKIE["userSecret"]) || !$this->isValidRequest($_COOKIE["userID"], $_COOKIE["userSecret"])) {
-            return redirect()->to('/');
-        }
         return view('people');
     }
 
     public function getPeople()
     {
         if (!isset($_COOKIE["userID"]) || !isset($_COOKIE["userSecret"]) || !$this->isValidRequest($_COOKIE["userID"], $_COOKIE["userSecret"])) {
-
             return $this->failUnauthorized();
         }
-        if (isset($_COOKIE["error-edit-prename"])){
+        if (isset($_COOKIE["error-edit-prename"])) {
             unset($_COOKIE["error-edit-prename"]);
             setcookie("error-edit-prename", "", -1, "/");
         }
-        if (isset($_COOKIE["error-edit-surname"])){
+        if (isset($_COOKIE["error-edit-surname"])) {
             unset($_COOKIE["error-edit-surname"]);
             setcookie("error-edit-surname", "", -1, "/");
         }
-        if (isset($_COOKIE["error-edit-street"])){
+        if (isset($_COOKIE["error-edit-street"])) {
             unset($_COOKIE["error-edit-street"]);
             setcookie("error-edit-street", "", -1, "/");
         }
-        if (isset($_COOKIE["error-edit-zip"])){
+        if (isset($_COOKIE["error-edit-zip"])) {
             unset($_COOKIE["error-edit-zip"]);
             setcookie("error-edit-zip", "", -1, "/");
         }
-        if (isset($_COOKIE["error-edit-city"])){
+        if (isset($_COOKIE["error-edit-city"])) {
             unset($_COOKIE["error-edit-city"]);
             setcookie("error-edit-city", "", -1, "/");
         }
-        if (isset($_COOKIE["error-new-prename"])){
+        if (isset($_COOKIE["error-new-prename"])) {
             unset($_COOKIE["error-new-prename"]);
             setcookie("error-new-prename", "", -1, "/");
         }
-        if (isset($_COOKIE["error-new-surname"])){
+        if (isset($_COOKIE["error-new-surname"])) {
             unset($_COOKIE["error-new-surname"]);
             setcookie("error-new-surname", "", -1, "/");
         }
-        if (isset($_COOKIE["error-new-street"])){
+        if (isset($_COOKIE["error-new-street"])) {
             unset($_COOKIE["error-new-street"]);
             setcookie("error-new-street", "", -1, "/");
         }
-        if (isset($_COOKIE["error-new-zip"])){
+        if (isset($_COOKIE["error-new-zip"])) {
             unset($_COOKIE["error-new-zip"]);
             setcookie("error-new-zip", "", -1, "/");
         }
-        if (isset($_COOKIE["error-new-city"])){
+        if (isset($_COOKIE["error-new-city"])) {
             unset($_COOKIE["error-new-city"]);
             setcookie("error-new-city", "", -1, "/");
         }
-        if (isset($_COOKIE["success"])){
+        if (isset($_COOKIE["success"])) {
             unset($_COOKIE["success"]);
             setcookie("success", "", -1, "/");
         }
@@ -142,11 +123,8 @@ class People extends BaseController
     }
 
 
-    public function addPerson()
+    public function addPerson(): string
     {
-        if (!isset($_COOKIE["userID"]) || !isset($_COOKIE["userSecret"]) || !$this->isValidRequest($_COOKIE["userID"], $_COOKIE["userSecret"])) {
-            return redirect()->to('/');
-        }
         return view("addPerson");
     }
 
@@ -157,23 +135,23 @@ class People extends BaseController
         }
         helper(['form', 'url']);
 
-        if (isset($_COOKIE["error-new-prename"])){
+        if (isset($_COOKIE["error-new-prename"])) {
             unset($_COOKIE["error-new-prename"]);
             setcookie("error-new-prename", "", -1, "/");
         }
-        if (isset($_COOKIE["error-new-surname"])){
+        if (isset($_COOKIE["error-new-surname"])) {
             unset($_COOKIE["error-new-surname"]);
             setcookie("error-new-surname", "", -1, "/");
         }
-        if (isset($_COOKIE["error-new-street"])){
+        if (isset($_COOKIE["error-new-street"])) {
             unset($_COOKIE["error-new-street"]);
             setcookie("error-new-street", "", -1, "/");
         }
-        if (isset($_COOKIE["error-new-zip"])){
+        if (isset($_COOKIE["error-new-zip"])) {
             unset($_COOKIE["error-new-zip"]);
             setcookie("error-new-zip", "", -1, "/");
         }
-        if (isset($_COOKIE["error-new-city"])){
+        if (isset($_COOKIE["error-new-city"])) {
             unset($_COOKIE["error-new-city"]);
             setcookie("error-new-city", "", -1, "/");
         }
@@ -266,11 +244,8 @@ class People extends BaseController
         }
     }
 
-    function editPerson()
+    function editPerson(): string
     {
-        if (!isset($_COOKIE["userID"]) || !isset($_COOKIE["userSecret"]) || !$this->isValidRequest($_COOKIE["userID"], $_COOKIE["userSecret"])) {
-            return redirect()->to('/');
-        }
         return view("editPerson");
     }
 
@@ -282,23 +257,23 @@ class People extends BaseController
         helper(['form', 'url']);
 
 
-        if (isset($_COOKIE["error-edit-prename"])){
+        if (isset($_COOKIE["error-edit-prename"])) {
             unset($_COOKIE["error-edit-prename"]);
             setcookie("error-edit-prename", "", -1, "/");
         }
-        if (isset($_COOKIE["error-edit-surname"])){
+        if (isset($_COOKIE["error-edit-surname"])) {
             unset($_COOKIE["error-edit-surname"]);
             setcookie("error-edit-surname", "", -1, "/");
         }
-        if (isset($_COOKIE["error-edit-street"])){
+        if (isset($_COOKIE["error-edit-street"])) {
             unset($_COOKIE["error-edit-street"]);
             setcookie("error-edit-street", "", -1, "/");
         }
-        if (isset($_COOKIE["error-edit-zip"])){
+        if (isset($_COOKIE["error-edit-zip"])) {
             unset($_COOKIE["error-edit-zip"]);
             setcookie("error-edit-zip", "", -1, "/");
         }
-        if (isset($_COOKIE["error-edit-city"])){
+        if (isset($_COOKIE["error-edit-city"])) {
             unset($_COOKIE["error-edit-city"]);
             setcookie("error-edit-city", "", -1, "/");
         }

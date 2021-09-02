@@ -15,7 +15,6 @@ if (!window.PushManager) {
 }
 
 
-
 function initServiceWorker() {
     navigator.serviceWorker.register('/serviceworker.js')
         .then(() => {
@@ -72,28 +71,18 @@ caches.open("dynamic-v1").then(function (cache) {
 
 
 if (navigator.onLine) {
-    fetch("http://localhost/people/checkCookie")
-        .then((resp) => resp.json())
-        .then(data => {
-            if (data) {
+    initServiceWorker();
+    people = fetch("http://localhost/people/getPeople")
+        .then(response => {
+            if (response.status === 401) {
                 window.location.href = "http://localhost/";
-            } else {
-                initServiceWorker();
-                people = fetch("http://localhost/people/getPeople")
-                    .then(response => response.json())
-                    .then(data => {
-                        writeToView(data);
-                    })
-                    .catch(err => {
-                        console.log("Security cookies not found");
-                    });
             }
+            return response.json()
         })
-        .catch(err => console.log(err));
+        .then(data => {
+            writeToView(data);
+        })
 }
-
-
-
 
 
 function writeToView(people) {
