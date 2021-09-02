@@ -72,12 +72,12 @@ caches.open("dynamic-v1").then(function (cache) {
 
 
 if (navigator.onLine) {
-    // fetch("http://localhost/people/checkCookie")
-    //     .then((resp) => resp.json())
-    //     .then(data => {
-    //         if (data) {
-    //             window.location.href = "http://localhost/";
-    //         } else {
+    fetch("http://localhost/people/checkCookie")
+        .then((resp) => resp.json())
+        .then(data => {
+            if (data) {
+                window.location.href = "http://localhost/";
+            } else {
                 initServiceWorker();
                 people = fetch("http://localhost/people/getPeople")
                     .then(response => response.json())
@@ -87,9 +87,9 @@ if (navigator.onLine) {
                     .catch(err => {
                         console.log("Security cookies not found");
                     });
-        //     }
-        // })
-        // .catch(err => console.log(err));
+            }
+        })
+        .catch(err => console.log(err));
 }
 
 
