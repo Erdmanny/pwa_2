@@ -6,10 +6,9 @@
     <link rel="shortcut icon" type="image/x-icon" href="/logo.ico">
     <link rel="manifest" href="/manifest.webmanifest">
     <title>PWA 2</title>
-    <meta name="theme-color" content="#FFE1C4">
+    <meta name="theme-color" content="#0032FF">
 
-    <link rel="apple-touch-icon" href="/icon/icon96.png">
-<!--    <meta name="apple-mobile-web-app-status-bar" content="#aa7700">-->
+    <link rel="apple-touch-icon" href="/icon/icon192.png">
 
 
     <!--Bootstrap CSS-->
@@ -49,7 +48,7 @@
     <div class="row mt-3">
 
         <div class="col-lg-12">
-            <form action="http://localhost/people/addPerson_Validation" method="post" id="new-person-form">
+            <form action="<?php echo base_url("people/addPerson_Validation")?>" method="post" id="new-person-form">
                 <div class="card">
                     <div class="card-body">
                         <div class="row m-3">

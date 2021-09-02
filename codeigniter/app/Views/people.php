@@ -6,10 +6,9 @@
     <link rel="shortcut icon" type="image/x-icon" href="/logo.ico">
     <link rel="manifest" href="/manifest.webmanifest">
     <title>PWA 2</title>
-    <meta name="theme-color" content="#FFE1C4">
+    <meta name="theme-color" content="#0032FF">
 
-    <link rel="apple-touch-icon" href="/icon/icon96.png">
-<!--    <meta name="apple-mobile-web-app-status-bar" content="#aa7700">-->
+    <link rel="apple-touch-icon" href="/icon/icon192.png">
 
 
     <!--Bootstrap CSS-->
@@ -52,7 +51,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header row">
-                    <a type="button" class="col-lg-2 btn btn-primary" href="http://localhost/people/addPerson">
+                    <a class="col-lg-2 btn btn-primary" href="<?= base_url(); ?>/people/addPerson">
                         Add Person
                     </a>
 
@@ -80,7 +79,7 @@
     function deletePerson(id) {
         if (navigator.onLine) {
             if (confirm("Are you sure you want to remove the person with id " + id + " ?")) {
-                window.location.href = "http://localhost/people/deletePerson/" + id;
+                window.location.href = "<?= base_url(); ?>/people/deletePerson/" + id;
             }
         } else {
             alert("You cannot delete a person while offline.")

@@ -6,6 +6,7 @@ use App\Models\PeopleModel;
 use App\Models\PushNotificationsModel;
 use App\Models\UserModel;
 use CodeIgniter\HTTP\Response;
+use Exception;
 use Minishlink\WebPush\Subscription;
 use Minishlink\WebPush\WebPush;
 use CodeIgniter\API\ResponseTrait;
@@ -70,6 +71,7 @@ class People extends BaseController
     public function getPeople()
     {
         if (!isset($_COOKIE["userID"]) || !isset($_COOKIE["userSecret"]) || !$this->isValidRequest($_COOKIE["userID"], $_COOKIE["userSecret"])) {
+
             return $this->failUnauthorized();
         }
         if (isset($_COOKIE["error-edit-prename"])){
@@ -238,14 +240,11 @@ class People extends BaseController
                 $_COOKIE["token"]
             );
 
-
             if (!empty($id)) {
                 setcookie("success", "Person added.", time() + (86400 * 30), "/");
 
-
                 $subscribers = $this->_pushNotificationsModel->getAllSubscribers();
                 foreach ($subscribers as $row) {
-
                     $keys_auth = array(
                         "contentEncoding" => "aesgcm",
                         "endpoint" => $row->endpoint,
@@ -254,10 +253,7 @@ class People extends BaseController
                             "p256dh" => $row->p256dh
                         )
                     );
-
-                    $message = "added";
-
-                    $this->sendMessage($keys_auth, $row->endpoint, $message, $this->request->getVar('new-prename'), $this->request->getVar('new-surname'));
+                    $this->sendMessage($keys_auth, $row->endpoint, "added", $this->request->getVar('new-prename'), $this->request->getVar('new-surname'));
                 }
 
 
@@ -389,16 +385,12 @@ class People extends BaseController
                         )
                     );
 
-                    $message = "updated";
-
-                    $this->sendMessage($keys_auth, $row->endpoint, $message, $this->request->getVar('edit-prename'), $this->request->getVar('edit-surname'));
+                    $this->sendMessage($keys_auth, $row->endpoint, "updated", $this->request->getVar('edit-prename'), $this->request->getVar('edit-surname'));
                 }
-
 
             } else {
                 setcookie("error", "Person not updated.", time() + (86400 * 30), "/");
             }
-
 
             return $this->response->redirect(site_url("people"));
         }
@@ -412,13 +404,13 @@ class People extends BaseController
         }
         $person = $this->_peopleModel->getSinglePerson($id);
 
-
         if (!empty($id)) {
+            $this->_peopleModel->deletePerson($id);
+
             setcookie("success", "Person deleted.", time() + (86400 * 30), "/");
 
             $subscribers = $this->_pushNotificationsModel->getAllSubscribers();
             foreach ($subscribers as $row) {
-
                 $keys_auth = array(
                     "contentEncoding" => "aesgcm",
                     "endpoint" => $row->endpoint,
@@ -428,16 +420,13 @@ class People extends BaseController
                     )
                 );
 
-                $message = "deleted";
-
-                $this->sendMessage($keys_auth, $row->endpoint, $message, $person->prename, $person->surname);
+                $this->sendMessage($keys_auth, $row->endpoint, "deleted", $person->prename, $person->surname);
             }
-
 
         } else {
             setcookie("success", "Person not deleted.", time() + (86400 * 30), "/");
         }
-        $this->_peopleModel->deletePerson($id);
+
         return $this->response->redirect(site_url("people"));
     }
 
@@ -451,7 +440,7 @@ class People extends BaseController
 
         $auth = array(
             'VAPID' => array(
-                'subject' => 'PHP Codeigniter Web Push Notification',
+                'subject' => 'test@test.de',
                 'publicKey' => env('public_key'),
                 'privateKey' => env('private_key')
             )
@@ -508,24 +497,8 @@ class People extends BaseController
                         echo 'Sorry there has been an error processing your request!';
                     }
                     break;
-                case 'PUT':
-                    $subscribers = $this->_pushNotificationsModel->getSubscribersByEndpoint($decoded['endpoint']);
-                    print_r($subscribers);
-                    try {
-                        if ($subscribers[0]->id !== NULL) {
-                            if ($this->_pushNotificationsModel->updateSubscriber($subscribers[0]->id, $decoded['endpoint'], $decoded['authToken'], $decoded['publicKey'])) {
-                                echo 'Subscription updated successful.';
-                            } else {
-                                echo 'Sorry there is some problem';
-                            }
-                        }
-                    } catch (Exception $error) {
-                        echo 'Sorry there has been an error processing your request!';
-                    }
-                    break;
                 case 'DELETE':
                     $subscribers = $this->_pushNotificationsModel->getSubscribersByEndpoint($decoded['endpoint']);
-                    print_r($subscribers);
                     try {
                         if (!empty($subscribers[0]->id)) {
                             if ($this->_pushNotificationsModel->deleteSubscriber($subscribers[0]->id)) {
@@ -545,53 +518,4 @@ class People extends BaseController
         }
     }
 
-
-    public function send_push_notification()
-    {
-        $subscribers = $this->_pushNotificationsModel->getAllSubscribers();
-
-        foreach ($subscribers as $row) {
-
-            $data = array(
-                "contentEncoding" => "aesgcm",
-                "endpoint" => $row->endpoint,
-                "keys" => array(
-                    "auth" => $row->auth,
-                    "p256dh" => $row->p256dh
-                )
-            );
-
-            $subscription = Subscription::create($data);
-
-            $auth = array(
-                'VAPID' => array(
-                    'subject' => 'PHP Codeigniter Web Push Notification',
-                    'publicKey' => env('public_key'),
-                    'privateKey' => env('private_key')
-                )
-            );
-
-            $webPush = new WebPush($auth);
-
-            $options = [
-                'title' => 'Test',
-                'body' => 'This is a body',
-                'icon' => base_url() . '/icon/icon128.png',
-                'badge' => base_url() . '/icon/icon128.png',
-                'url' => 'http://localhost'
-            ];
-            $report = $webPush->sendOneNotification(
-                $subscription,
-                json_encode($options)
-            );
-
-            $endpoint = $report->getRequest()->getUri()->__toString();
-
-            if ($report->isSuccess()) {
-                echo "[v] Message sent successfully for subscription {$endpoint}";
-            } else {
-                echo "[x] Message failed to sent for subscription {$endpoint}: {$report->getReason()}";
-            }
-        }
-    }
 }

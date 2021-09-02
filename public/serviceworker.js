@@ -130,22 +130,5 @@ self.addEventListener('push', event => {
 self.addEventListener('notificationclick', event => {
     console.log(('[Service Worker] Notification click received.'));
     event.notification.close();
-
-    const url = event.notification.data.url;
-    console.log(url);
-
-    event.waitUntil(clients.matchAll({
-        type: 'window'
-    }).then(clientList => {
-        console.log(clientList);
-        for (let i = 0; i < clientList.length; i++) {
-            let client = clientList[i];
-            if (client.url === self.registration.scope && 'focus' in client) {
-                return client.focus();
-            }
-        }
-        if (clients.openWindow) {
-            return clients.openWindow(url);
-        }
-    }));
+    event.waitUntil(clients.openWindow(event.notification.data.url));
 })
