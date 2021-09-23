@@ -9,7 +9,7 @@ class User extends BaseController
 
     /**
      * UserController constructor.
-     * Init model and session.
+     * Init model.
      */
     public function __construct()
     {

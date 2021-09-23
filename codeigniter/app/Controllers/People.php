@@ -6,6 +6,7 @@ use App\Models\PeopleModel;
 use App\Models\PushNotificationsModel;
 use App\Models\UserModel;
 use CodeIgniter\HTTP\Response;
+use ErrorException;
 use Exception;
 use Minishlink\WebPush\Subscription;
 use Minishlink\WebPush\WebPush;
@@ -20,7 +21,7 @@ class People extends BaseController
 
     /**
      * PeopleController constructor.
-     * Init models, session and validation.
+     * Init models and validation.
      */
     public function __construct()
     {
@@ -145,6 +146,7 @@ class People extends BaseController
 
     /**
      * @return Response|mixed
+     * @throws ErrorException
      *
      * Validate AddPerson.
      */
@@ -275,6 +277,7 @@ class People extends BaseController
 
     /**
      * @return Response|mixed
+     * @throws ErrorException
      *
      * Validate EditPerson.
      */
@@ -405,6 +408,7 @@ class People extends BaseController
     /**
      * @param $id
      * @return Response|mixed
+     * @throws ErrorException
      *
      * Delete Person.
      */
@@ -450,7 +454,7 @@ class People extends BaseController
      * @param $message
      * @param $prename
      * @param $surname
-     * @throws \ErrorException
+     * @throws ErrorException
      *
      * Send Push Notification.
      */
@@ -489,7 +493,6 @@ class People extends BaseController
 
     /**
      * Subscribe to or unsubscribe from Push.
-     *
      */
     public function push_subscription()
     {
